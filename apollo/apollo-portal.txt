@@ -1,0 +1,12 @@
+NAME: apollo-portal
+LAST DEPLOYED: Mon Mar 15 05:57:14 2021
+NAMESPACE: apollo
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Portal url for current release:
+     NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+           You can watch the status of by running 'kubectl get --namespace apollo svc -w apollo-portal'
+  export SERVICE_IP=$(kubectl get svc --namespace apollo apollo-portal --template "{{ range (index .status.loadBalancer.ingress 0) }}{{.}}{{ end }}")
+  echo http://$SERVICE_IP:8070

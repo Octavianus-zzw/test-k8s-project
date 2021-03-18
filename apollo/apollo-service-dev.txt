@@ -1,0 +1,39 @@
+NAME: apollo-service-dev
+LAST DEPLOYED: Mon Mar 15 05:45:37 2021
+NAMESPACE: apollo
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+Meta service url for current release:
+  echo http://apollo-service-dev-apollo-configservice.apollo:8080
+
+For local test use:
+  export POD_NAME=$(kubectl get pods --namespace apollo -l "app=apollo-service-dev-apollo-configservice" -o jsonpath="{.items[0].metadata.name}")
+  echo http://127.0.0.1:8080
+  kubectl --namespace apollo port-forward $POD_NAME 8080:8080
+
+Urls registered to meta service:
+Config service: http://apollo-service-dev-apollo-configservice.apollo:8080
+Admin service: http://apollo-service-dev-apollo-adminservice.apollo:8090
+
+
+
+
+LAST DEPLOYED: Mon Mar 15 09:07:27 2021
+NAMESPACE: apollo
+STATUS: deployed
+REVISION: 2
+TEST SUITE: None
+NOTES:
+Meta service url for current release:
+  echo http://207.246.106.156:31372
+
+For local test use:
+  export POD_NAME=$(kubectl get pods --namespace apollo -l "app=apollo-service-dev-apollo-configservice" -o jsonpath="{.items[0].metadata.name}")
+  echo http://127.0.0.1:8080
+  kubectl --namespace apollo port-forward $POD_NAME 8080:8080
+
+Urls registered to meta service:
+Config service: http://207.246.106.156:31372
+Admin service: http://207.246.106.156:31373

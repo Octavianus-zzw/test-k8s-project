@@ -1,0 +1,15 @@
+portaldb:
+  host: mysql.mysql
+  dbName: ApolloPortalDB
+  userName: root
+  password: root
+  connectionStringProperties: characterEncoding=utf8&useSSL=false
+
+config:
+  envs: dev,pro
+  metaServers:
+    dev: http://apollo-service-dev-apollo-configservice.apollo:8080
+    pro: http://apollo-service-pro-apollo-configservice.apollo:8080
+
+service:
+  type: LoadBalancer

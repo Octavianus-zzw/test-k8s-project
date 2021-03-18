@@ -1,0 +1,30 @@
+1、docker通过目录映射docker.sock来调用宿主机的docker构建
+
+2、k8s连接docker仓库：
+DOCKER_REGISTRY_SERVER=https://index.docker.io/v1/
+DOCKER_USER=登陆docker的用户名
+DOCKER_EMAIL=登陆docker的email
+DOCKER_PASSWORD=登陆docker的秘密
+
+kubectl create secret docker-registry myregistrykey \
+  --docker-server=$DOCKER_REGISTRY_SERVER \
+  --docker-username=$DOCKER_USER \
+  --docker-password=$DOCKER_PASSWORD \
+  --docker-email=$DOCKER_EMAIL
+
+k8s.yaml:
+apiVersion: v1
+kind: Pod
+metadata:
+  name: whatever
+spec:
+  containers:
+    - name: whatever
+      image: index.docker.io/DOCKER_USER/REPO_NAME:latest
+      imagePullPolicy: Always
+      command: [ "echo", "SUCCESS" ]
+  imagePullSecrets:
+    - name: myregistrykey
+
+3、jenkins调用kubectl构建
+需要安装kubernetes CLI插件，同时保证容器中安装了kubectl，因此这时候使用自己打包好的镜像

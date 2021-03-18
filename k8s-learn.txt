@@ -1,0 +1,67 @@
+部署k8s
+
+一、安装docker
+sudo apt-get update
+
+sudo apt-get install \
+    apt-transport-https \
+    ca-certificates \
+    curl \
+    gnupg \
+    lsb-release
+
+curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /usr/share/keyrings/docker-archive-keyring.gpg
+
+echo \
+  "deb [arch=amd64 signed-by=/usr/share/keyrings/docker-archive-keyring.gpg] https://download.docker.com/linux/ubuntu \
+  $(lsb_release -cs) stable" | sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+
+sudo apt-get update
+
+sudo apt-get install docker-ce docker-ce-cli containerd.io
+
+二、安装kubelet、kubeadm、kubectl
+apt-get update && apt-get install -y apt-transport-https
+curl https://mirrors.aliyun.com/kubernetes/apt/doc/apt-key.gpg | apt-key add - 
+cat <<EOF >/etc/apt/sources.list.d/kubernetes.list
+deb https://mirrors.aliyun.com/kubernetes/apt/ kubernetes-xenial main
+EOF  
+apt-get update
+apt-get install -y kubelet kubeadm kubectl
+
+三、创建k8s集群
+关闭swap分区
+sudo swapoff -a
+
+防止开机自动挂载swap分区
+sudo sed -i '/ swap / s/^\(.*\)$/#\1/g' /etc/fstab
+
+初始化控制节点（10.211.55.5为机器ip）
+kubeadm init --apiserver-advertise-address=10.211.55.5 
+             --image-repository registry.aliyuncs.com/google_containers 
+             --pod-network-cidr=192.168.0.0/16
+
+为用户增加kubectl配置
+mkdir -p $HOME/.kube
+sudo cp -i /etc/kubernetes/admin.conf $HOME/.kube/config
+sudo chown $(id -u):$(id -g) $HOME/.kube/config
+
+四、加入节点
+在新机器上安装docker、kubeadm、kubelet、kubectl，在新机器上切换到root用户运行上面init后输出的信息
+kubeadm join --token <token> <control-plane-host>:<control-plane-port> --discovery-token-ca-cert-hash sha256:<hash>
+例：kubeadm join 144.202.115.8:6443 --token 7tkyum.o43wi1sxjodkjor2 \
+    --discovery-token-ca-cert-hash sha256:acf5b18b7a407f370cc5fbf85aad7879e2aa34da4d77b91479cf807ddb4fe390
+如果tooken过期了，可以使用kubeadm token create来生成token
+如果没有--discovery-token-ca-cert-hash的值，可以在控制节点执行以下命令获取：
+openssl x509 -pubkey -in /etc/kubernetes/pki/ca.crt | openssl rsa -pubin -outform der 2>/dev/null | \
+   openssl dgst -sha256 -hex | sed 's/^.* //'
+
+五、安装Pod网络附加组件
+calico：
+kubectl create -f https://docs.projectcalico.org/manifests/tigera-operator.yaml
+
+## 注意，如果你init配置的是 --pod-network-cidr=192.168.0.0/16，那就不用改，直接运行即可，否则你需要把文件先下下来来，改成你配置的，在创建
+kubectl create -f https://docs.projectcalico.org/manifests/custom-resources.yaml
+
+六、node节点使用kubectl
+把master节点的.kube目录下的config文件复制到node节点下的.kube目录下即可

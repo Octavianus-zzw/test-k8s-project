@@ -1,0 +1,14 @@
+configdb:
+  host: mysql.mysql
+  dbName: ApolloConfigDB
+  userName: root
+  password: root
+  connectionStringProperties: characterEncoding=utf8&useSSL=false
+
+configService:
+  replicaCount: 1
+  service:
+    type: NodePort
+
+adminService:
+  replicaCount: 1
